@@ -34,7 +34,7 @@ const AvatarGroupRoot = styled('div', {
   }),
 })(({ theme }) => ({
   [`& .${avatarClasses.root}`]: {
-    border: `2px solid ${theme.palette.background.default}`,
+    border: `2px solid ${(theme.vars || theme).palette.background.default}`,
     boxSizing: 'content-box',
     marginLeft: -8,
     '&:last-child': {
@@ -50,7 +50,7 @@ const AvatarGroupAvatar = styled(Avatar, {
   slot: 'Avatar',
   overridesResolver: (props, styles) => styles.avatar,
 })(({ theme }) => ({
-  border: `2px solid ${theme.palette.background.default}`,
+  border: `2px solid ${(theme.vars || theme).palette.background.default}`,
   boxSizing: 'content-box',
   marginLeft: -8,
   '&:last-child': {
@@ -67,6 +67,8 @@ const AvatarGroup = React.forwardRef(function AvatarGroup(inProps, ref) {
   const {
     children: childrenProp,
     className,
+    component = 'div',
+    componentsProps = {},
     max = 5,
     spacing = 'medium',
     total,
@@ -79,6 +81,7 @@ const AvatarGroup = React.forwardRef(function AvatarGroup(inProps, ref) {
     ...props,
     max,
     spacing,
+    component,
     variant,
   };
 
@@ -114,6 +117,7 @@ const AvatarGroup = React.forwardRef(function AvatarGroup(inProps, ref) {
 
   return (
     <AvatarGroupRoot
+      as={component}
       ownerState={ownerState}
       className={clsx(classes.root, className)}
       ref={ref}
@@ -122,11 +126,10 @@ const AvatarGroup = React.forwardRef(function AvatarGroup(inProps, ref) {
       {extraAvatars ? (
         <AvatarGroupAvatar
           ownerState={ownerState}
-          className={classes.avatar}
-          style={{
-            marginLeft,
-          }}
           variant={variant}
+          {...componentsProps.additionalAvatar}
+          className={clsx(classes.avatar, componentsProps.additionalAvatar?.className)}
+          style={{ marginLeft, ...componentsProps.additionalAvatar?.style }}
         >
           +{extraAvatars}
         </AvatarGroupAvatar>
@@ -134,11 +137,13 @@ const AvatarGroup = React.forwardRef(function AvatarGroup(inProps, ref) {
       {children
         .slice(0, maxAvatars)
         .reverse()
-        .map((child) => {
+        .map((child, index) => {
           return React.cloneElement(child, {
             className: clsx(child.props.className, classes.avatar),
             style: {
-              marginLeft,
+              // Consistent with "&:last-child" styling for the default spacing,
+              // we do not apply custom marginLeft spacing on the last child
+              marginLeft: index === maxAvatars - 1 ? undefined : marginLeft,
               ...child.props.style,
             },
             variant: child.props.variant || variant,
@@ -165,6 +170,18 @@ AvatarGroup.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a HTML element or a component.
+   */
+  component: PropTypes.elementType,
+  /**
+   * The props used for each slot inside the AvatarGroup.
+   * @default {}
+   */
+  componentsProps: PropTypes.shape({
+    additionalAvatar: PropTypes.object,
+  }),
   /**
    * Max avatars to show before +x.
    * @default 5

@@ -16,10 +16,10 @@ const twoDigitNumbers1 = [
   'Twelve',
   'Thirteen',
   'Fourteen',
-  'Fivteen',
+  'Fifteen',
   'Sixteen',
   'Seventeen',
-  'Eightteen',
+  'Eighteen',
   'Nineteen',
 ];
 
@@ -74,6 +74,11 @@ export default function myDestRewriter(svgPathObj) {
   }
   if (fileName.startsWith('5g')) {
     return `FiveG${fileName.slice(2)}`;
+  }
+
+  // All other names starting with a number between 10 and 19
+  if (/^1\d/.test(fileName)) {
+    return `${twoDigitNumbers1[fileName[1]]}${fileName.slice(2)}`;
   }
 
   return fileName;

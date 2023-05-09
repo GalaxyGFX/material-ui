@@ -23,43 +23,49 @@ const GOLDs = [
     src: 'https://avatars.githubusercontent.com/u/24789812?size=40',
     srcSet: 'https://avatars.githubusercontent.com/u/24789812?size=80 2x',
     name: 'Bit',
-    description: 'The fastest way to share code.',
+    description: 'A component-driven development platform.',
     href: 'https://bit.dev/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
   {
-    src: 'https://images.opencollective.com/callemall/a6946da/logo/40.png',
-    srcSet: 'https://images.opencollective.com/callemall/a6946da/logo/80.png 2x',
+    src: 'https://avatars.githubusercontent.com/u/1262264?size=40',
+    srcSet: 'https://avatars.githubusercontent.com/u/1262264?s=80 2x',
     name: 'Text-em-all',
     description: 'The easy way to message your group.',
     href: 'https://www.text-em-all.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
   {
-    src: 'https://images.opencollective.com/laststance/daffd6c/logo/40.png',
-    srcSet: 'https://images.opencollective.com/laststance/daffd6c/logo/80.png 2x',
-    name: 'Laststance',
-    description: 'Organization for OSS activity based on Tokyo.',
-    href: 'https://laststance.io/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    src: 'https://images.opencollective.com/netticasinohex-com/71d7417/logo/40.png',
+    srcSet: 'https://images.opencollective.com/netticasinohex-com/71d7417/logo/80.png 2x',
+    name: 'NettiCasinoHEX',
+    description: 'A real giant among casino guides.',
+    href: 'https://netticasinohex.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
   {
-    src: 'https://images.opencollective.com/movavi-software/a1d0167/logo/40.png',
-    srcSet: 'https://images.opencollective.com/movavi-software/a1d0167/logo/80.png 2x',
-    name: 'Movavi',
-    description: 'Screen recorder for Mac.',
-    href: 'https://www.movavi.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    src: '/static/sponsors//megafamous.png',
+    name: 'MegaFamous',
+    description: 'Buy Instagram followers & likes.',
+    href: 'https://megafamous.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
   {
-    src: 'https://images.opencollective.com/aussiecasinohex/923df37/logo/40.png',
-    srcSet: 'https://images.opencollective.com/aussiecasinohex/923df37/logo/80.png 2x',
-    name: 'TopAussieCasinos.com',
-    description: 'Aussie Gambling Guide.',
-    href: 'https://topaussiecasinos.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    src: 'https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/40.png',
+    srcSet: 'https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/80.png 2x',
+    name: 'DialMyCalls',
+    description: 'Send text messages, calls to thousands.',
+    href: 'https://www.dialmycalls.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
   {
-    src: 'https://images.opencollective.com/sumatosoft_company/0b78570/avatar/40.png',
-    srcSet: 'https://images.opencollective.com/sumatosoft_company/0b78570/avatar/80.png 2x',
-    name: 'SunmatoSoft',
-    description: 'We help companies to digitalize their businesses.',
-    href: 'https://sumatosoft.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    src: 'https://images.opencollective.com/goread_io/eb6337d/logo/40.png',
+    srcSet: 'https://images.opencollective.com/goread_io/eb6337d/logo/80.png 2x',
+    name: 'Goread.io',
+    description: 'Instagram followers, likes, views, comments.',
+    href: 'https://goread.io/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+  },
+  {
+    src: 'https://images.opencollective.com/icons8/7fa1641/logo/40.png',
+    srcSet: 'https://images.opencollective.com/icons8/7fa1641/logo/80.png 2x',
+    name: 'Icons8',
+    description: 'Icons, illustrations, design tools, and more.',
+    href: 'https://icons8.com?utm_source=MUI&utm_medium=referral&utm_content=homepage',
   },
 ];
 
@@ -71,7 +77,7 @@ export default function GoldSponsors() {
   });
   return (
     <Box ref={ref}>
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 1 }}>
         <Typography
           component="h3"
           variant="h5"
@@ -79,8 +85,8 @@ export default function GoldSponsors() {
           sx={{
             color: (theme) =>
               theme.palette.mode === 'dark'
-                ? theme.palette.warning[500]
-                : theme.palette.warning[800],
+                ? theme.palette.warning[300]
+                : theme.palette.warning[700],
           }}
         >
           Gold
@@ -106,7 +112,7 @@ export default function GoldSponsors() {
             }}
           >
             <IconButton
-              aria-label="Become MUI sponsor"
+              aria-label="Sponsor MUI"
               component="a"
               href={ROUTES.goldSponsor}
               target="_blank"
@@ -123,14 +129,13 @@ export default function GoldSponsors() {
             </IconButton>
             <div>
               <Typography variant="body2" color="text.primary" fontWeight="bold">
-                Become our sponsor!
+                Become a sponsor
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                To join us,{' '}
+                Find out how{' '}
                 <Link href={ROUTES.goldSponsor} target="_blank" rel="noopener noreferrer">
-                  choose how
-                </Link>{' '}
-                you want to contribute.
+                  you can support MUI.
+                </Link>
               </Typography>
             </div>
           </Paper>

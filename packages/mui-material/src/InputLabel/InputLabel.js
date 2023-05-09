@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
+import clsx from 'clsx';
 import formControlState from '../FormControl/formControlState';
 import useFormControl from '../FormControl/useFormControl';
 import FormLabel, { formLabelClasses } from '../FormLabel';
@@ -88,6 +89,8 @@ const InputLabelRoot = styled(FormLabel, {
       transform: 'translate(12px, 13px) scale(1)',
     }),
     ...(ownerState.shrink && {
+      userSelect: 'none',
+      pointerEvents: 'auto',
       transform: 'translate(12px, 7px) scale(0.75)',
       maxWidth: 'calc(133% - 24px)',
       ...(ownerState.size === 'small' && {
@@ -105,6 +108,8 @@ const InputLabelRoot = styled(FormLabel, {
       transform: 'translate(14px, 9px) scale(1)',
     }),
     ...(ownerState.shrink && {
+      userSelect: 'none',
+      pointerEvents: 'auto',
       maxWidth: 'calc(133% - 24px)',
       transform: 'translate(14px, -9px) scale(0.75)',
     }),
@@ -113,7 +118,14 @@ const InputLabelRoot = styled(FormLabel, {
 
 const InputLabel = React.forwardRef(function InputLabel(inProps, ref) {
   const props = useThemeProps({ name: 'MuiInputLabel', props: inProps });
-  const { disableAnimation = false, margin, shrink: shrinkProp, variant, ...other } = props;
+  const {
+    disableAnimation = false,
+    margin,
+    shrink: shrinkProp,
+    variant,
+    className,
+    ...other
+  } = props;
 
   const muiFormControl = useFormControl();
 
@@ -139,11 +151,13 @@ const InputLabel = React.forwardRef(function InputLabel(inProps, ref) {
   };
 
   const classes = useUtilityClasses(ownerState);
+
   return (
     <InputLabelRoot
       data-shrink={shrink}
       ownerState={ownerState}
       ref={ref}
+      className={clsx(classes.root, className)}
       {...other}
       classes={classes}
     />
@@ -164,7 +178,13 @@ InputLabel.propTypes /* remove-proptypes */ = {
    */
   classes: PropTypes.object,
   /**
-   * The color of the component. It supports those theme colors that make sense for this component.
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The color of the component.
+   * It supports both default and custom theme colors, which can be added as shown in the
+   * [palette customization guide](https://mui.com/material-ui/customization/palette/#adding-new-colors).
    */
   color: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
     PropTypes.oneOf(['error', 'info', 'primary', 'secondary', 'success', 'warning']),
@@ -200,6 +220,11 @@ InputLabel.propTypes /* remove-proptypes */ = {
    * If `true`, the label is shrunk.
    */
   shrink: PropTypes.bool,
+  /**
+   * The size of the component.
+   * @default 'normal'
+   */
+  size: PropTypes.oneOf(['normal', 'small']),
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */

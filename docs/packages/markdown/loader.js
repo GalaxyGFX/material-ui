@@ -1,4 +1,4 @@
-const { promises: fs } = require('fs');
+const { promises: fs, readdirSync } = require('fs');
 const path = require('path');
 const { prepareMarkdown } = require('./parseMarkdown');
 
@@ -29,6 +29,46 @@ function moduleIDToJSIdentifier(moduleID) {
     .join('');
 }
 
+const componentPackageMapping = {
+  'material-ui': {},
+  base: {},
+};
+
+const packages = [
+  {
+    product: 'material-ui',
+    paths: [
+      path.join(__dirname, '../../../packages/mui-lab/src'),
+      path.join(__dirname, '../../../packages/mui-material/src'),
+      path.join(__dirname, '../../../packages/mui-base/src'),
+    ],
+  },
+  {
+    product: 'base',
+    paths: [path.join(__dirname, '../../../packages/mui-base/src')],
+  },
+];
+
+packages.forEach((pkg) => {
+  pkg.paths.forEach((pkgPath) => {
+    const match = pkgPath.match(/packages(?:\\|\/)([^/\\]+)(?:\\|\/)src/);
+    const packageName = match ? match[1] : null;
+    if (!packageName) {
+      throw new Error(`cannot find package name from path: ${pkgPath}`);
+    }
+    const filePaths = readdirSync(pkgPath);
+    filePaths.forEach((folder) => {
+      if (folder.match(/^[A-Z]/)) {
+        if (!componentPackageMapping[pkg.product]) {
+          throw new Error(`componentPackageMapping must have "${pkg.product}" as a key`);
+        }
+        // filename starts with Uppercase = component
+        componentPackageMapping[pkg.product][folder] = packageName;
+      }
+    });
+  });
+});
+
 /**
  * @type {import('webpack').loader.Loader}
  */
@@ -40,29 +80,38 @@ module.exports = async function demoLoader() {
   const files = await fs.readdir(path.dirname(englishFilepath));
   const translations = await Promise.all(
     files
-      .filter((filename) => {
-        return (
-          path.extname(filename) === '.md' &&
-          path.basename(filename, '.md').startsWith(englishFilename)
-        );
-      })
-      .map(async (filename) => {
-        const filepath = path.join(path.dirname(englishFilepath), filename);
+      .map((filename) => {
+        if (filename === `${englishFilename}.md`) {
+          return {
+            filename,
+            userLanguage: 'en',
+          };
+        }
 
         const matchNotEnglishMarkdown = filename.match(notEnglishMarkdownRegExp);
-        const userLanguage =
+
+        if (
+          filename.startsWith(englishFilename) &&
           matchNotEnglishMarkdown !== null &&
           LANGUAGES_IN_PROGRESS.indexOf(matchNotEnglishMarkdown[1]) !== -1
-            ? matchNotEnglishMarkdown[1]
-            : 'en';
+        ) {
+          return {
+            filename,
+            userLanguage: matchNotEnglishMarkdown[1],
+          };
+        }
 
+        return null;
+      })
+      .filter((translation) => translation)
+      .map(async (translation) => {
+        const filepath = path.join(path.dirname(englishFilepath), translation.filename);
         this.addDependency(filepath);
         const markdown = await fs.readFile(filepath, { encoding: 'utf8' });
 
         return {
-          filename,
+          ...translation,
           markdown,
-          userLanguage,
         };
       }),
   );
@@ -70,12 +119,13 @@ module.exports = async function demoLoader() {
   const pageFilename = this.context
     .replace(this.rootContext, '')
     // win32 to posix
-    .replace(/\\/g, '/')
-    .replace(/^\/src\/pages\//, '');
-  const { docs } = prepareMarkdown({ pageFilename, translations });
+    .replace(/\\/g, '/');
+  const { docs } = prepareMarkdown({ pageFilename, translations, componentPackageMapping });
 
   const demos = {};
+  const components = {};
   const demoModuleIDs = new Set();
+  const componentModuleIDs = new Set();
   const demoNames = Array.from(
     new Set(
       docs.en.rendered
@@ -93,7 +143,11 @@ module.exports = async function demoLoader() {
       // TODO: const moduleID = demoName;
       // The import paths currently use a completely different format.
       // They should just use relative imports.
-      const moduleID = `./${demoName.replace(`pages/${pageFilename}/`, '')}`;
+      const moduleID = `./${demoName.replace(
+        `pages/${pageFilename.replace(/^\/src\/pages\//, '')}/`,
+        '',
+      )}`;
+
       const moduleFilepath = path.join(
         path.dirname(this.resourcePath),
         moduleID.replace(/\//g, path.sep),
@@ -136,17 +190,36 @@ module.exports = async function demoLoader() {
     }),
   );
 
-  /**
-   * @param {string} moduleID
-   */
-  function getDemoIdentifier(moduleID) {
-    return moduleIDToJSIdentifier(moduleID);
-  }
+  const componentNames = Array.from(
+    new Set(
+      docs.en.rendered
+        .filter((markdownOrComponentConfig) => {
+          return (
+            typeof markdownOrComponentConfig !== 'string' && markdownOrComponentConfig.component
+          );
+        })
+        .map((componentConfig) => {
+          return componentConfig.component;
+        }),
+    ),
+  );
+
+  componentNames.forEach((componentName) => {
+    const moduleID = path.join(this.rootContext, 'src', componentName);
+
+    components[moduleID] = componentName;
+    componentModuleIDs.add(moduleID);
+  });
 
   const transformed = `
     ${Array.from(demoModuleIDs)
       .map((moduleID) => {
-        return `import ${getDemoIdentifier(moduleID)} from '${moduleID}';`;
+        return `import ${moduleIDToJSIdentifier(moduleID)} from '${moduleID}';`;
+      })
+      .join('\n')}
+    ${Array.from(componentModuleIDs)
+      .map((moduleID) => {
+        return `import ${moduleIDToJSIdentifier(moduleID)} from '${moduleID}';`;
       })
       .join('\n')}
 
@@ -154,9 +227,14 @@ module.exports = async function demoLoader() {
     export const demos = ${JSON.stringify(demos, null, 2)};
     export const demoComponents = {${Array.from(demoModuleIDs)
       .map((moduleID) => {
-        return `${JSON.stringify(moduleID)}: ${getDemoIdentifier(moduleID)},`;
+        return `${JSON.stringify(moduleID)}: ${moduleIDToJSIdentifier(moduleID)},`;
       })
       .join('\n')}};
+        export const srcComponents = {${Array.from(componentModuleIDs)
+          .map((moduleID) => {
+            return `${JSON.stringify(components[moduleID])}: ${moduleIDToJSIdentifier(moduleID)},`;
+          })
+          .join('\n')}};
   `;
 
   return transformed;

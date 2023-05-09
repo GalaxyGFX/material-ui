@@ -8,10 +8,10 @@ import Stack from '@mui/material/Stack';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import YouTubeIcon from '@mui/icons-material/YouTube';
 import SvgMuiLogo from 'docs/src/icons/SvgMuiLogo';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
 import ROUTES from 'docs/src/route';
-import FEATURE_TOGGLE from 'docs/src/featureToggle';
 import Link from 'docs/src/modules/components/Link';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 
@@ -20,7 +20,8 @@ export default function AppFooter() {
     <Container component="footer">
       <Box
         sx={{
-          py: 8,
+          pt: 4,
+          pb: 8,
           display: 'grid',
           gridAutoColumns: '1fr',
           alignItems: 'center',
@@ -42,10 +43,10 @@ export default function AppFooter() {
         <div>
           <SvgMuiLogo width={32} />
           <Typography variant="body2" fontWeight="bold" sx={{ pt: 2 }}>
-            Join our newsletter!
+            Keep up to date
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            No spam, guaranteed.
+            Join our newsletter for regular updates. No spam ever.
           </Typography>
           <EmailSubscribe sx={{ mb: 1 }} />
         </div>
@@ -57,19 +58,16 @@ export default function AppFooter() {
             gap: 2,
           }}
         >
-          {FEATURE_TOGGLE.nav_products ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography fontWeight="bold" variant="body2">
-                Products
-              </Typography>
-              <Link href={ROUTES.productCore}>MUI Core</Link>
-              <Link href={ROUTES.productAdvanced}>MUI X</Link>
-              <Link href={ROUTES.productTemplates}>Templates</Link>
-              <Link href={ROUTES.productDesignKits}>Design kits</Link>
-            </Box>
-          ) : (
-            <Box sx={{ display: { xs: 'none', md: 'block' } }} />
-          )}
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography fontWeight="bold" variant="body2">
+              Products
+            </Typography>
+            <Link href={ROUTES.productCore}>MUI Core</Link>
+            <Link href={ROUTES.productAdvanced}>MUI X</Link>
+            <Link href={ROUTES.productTemplates}>Templates</Link>
+            <Link href={ROUTES.productDesignKits}>Design kits</Link>
+            <Link href={ROUTES.productToolpad}>MUI Toolpad</Link>
+          </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography fontWeight="bold" variant="body2">
               Resources
@@ -85,6 +83,7 @@ export default function AppFooter() {
               Explore
             </Typography>
             <Link href={ROUTES.documentation}>Documentation</Link>
+            <Link href={ROUTES.store}>Store</Link>
             <Link href={ROUTES.blog}>Blog</Link>
             <Link href={ROUTES.showcase}>Showcase</Link>
             <Link href={ROUTES.roadmap}>Roadmap</Link>
@@ -101,23 +100,26 @@ export default function AppFooter() {
               <Box
                 sx={{
                   px: 0.5,
-                  py: 0.3,
+                  py: '3px',
                   ml: 1,
+                  mb: '1px',
                   borderRadius: 0.5,
                   fontSize: (theme) => theme.typography.pxToRem(9),
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   color: '#fff',
+                  letterSpacing: '0.1rem',
                   backgroundColor: (theme) =>
                     theme.palette.mode === 'dark'
-                      ? theme.palette.error[800]
-                      : theme.palette.error.main,
+                      ? theme.palette.success[900]
+                      : theme.palette.success.main,
                 }}
               >
                 Hiring
               </Box>
             </Box>
             <Link href={ROUTES.support}>Support</Link>
+            <Link href={ROUTES.privacyPolicy}>Privacy policy</Link>
             <Link target="_blank" rel="noopener noreferrer" href="mailto:contact@mui.com">
               Contact us
             </Link>
@@ -134,19 +136,19 @@ export default function AppFooter() {
         }}
       >
         <Typography color="text.secondary" variant="body2">
-          Copyright © {new Date().getFullYear()} Material-UI SAS.
+          Copyright © {new Date().getFullYear()} Material UI SAS.
         </Typography>
         <Box sx={{ py: { xs: 2, sm: 0 } }}>
           <Stack spacing={2} direction="row">
             <IconButton
               target="_blank"
               rel="noopener noreferrer"
-              href="https://github.com/mui-org"
+              href="https://github.com/mui"
               aria-label="github"
               title="GitHub"
               size="small"
             >
-              <GitHubIcon />
+              <GitHubIcon fontSize="small" />
             </IconButton>
             <IconButton
               target="_blank"
@@ -156,17 +158,17 @@ export default function AppFooter() {
               title="Stack Overflow"
               size="small"
             >
-              <SvgStackOverflow />
+              <SvgStackOverflow fontSize="small" />
             </IconButton>
             <IconButton
               target="_blank"
               rel="noopener noreferrer"
-              href="https://twitter.com/MaterialUI"
+              href="https://twitter.com/MUI_hq"
               aria-label="twitter"
               title="Twitter"
               size="small"
             >
-              <TwitterIcon />
+              <TwitterIcon fontSize="small" />
             </IconButton>
             <IconButton
               target="_blank"
@@ -176,7 +178,17 @@ export default function AppFooter() {
               title="LinkedIn"
               size="small"
             >
-              <LinkedInIcon />
+              <LinkedInIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.youtube.com/channel/UCUdh2wVTrd7hErLo9Rh0HsQ"
+              aria-label="YouTube"
+              title="YouTube"
+              size="small"
+            >
+              <YouTubeIcon fontSize="small" />
             </IconButton>
           </Stack>
         </Box>

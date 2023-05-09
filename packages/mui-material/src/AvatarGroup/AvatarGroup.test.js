@@ -18,7 +18,7 @@ describe('<AvatarGroup />', () => {
       muiName: 'MuiAvatarGroup',
       refInstanceof: window.HTMLDivElement,
       testVariantProps: { max: 10, spacing: 'small', variant: 'square' },
-      skip: ['componentProp', 'componentsProp'],
+      skip: ['componentsProp'],
     }),
   );
 
@@ -47,6 +47,22 @@ describe('<AvatarGroup />', () => {
     expect(container.querySelectorAll('.MuiAvatar-root').length).to.equal(3);
     expect(container.querySelectorAll('img').length).to.equal(2);
     expect(container.textContent).to.equal('+2');
+  });
+
+  it('should pass props from componentsProps.additionalAvatar to the slot component', () => {
+    const componentsProps = { additionalAvatar: { className: 'additional-avatar-test' } };
+
+    const { container } = render(
+      <AvatarGroup max={3} componentsProps={componentsProps}>
+        <Avatar src="/fake.png" />
+        <Avatar src="/fake.png" />
+        <Avatar src="/fake.png" />
+        <Avatar src="/fake.png" />
+      </AvatarGroup>,
+    );
+
+    const additionalAvatar = container.querySelector('.additional-avatar-test');
+    expect(additionalAvatar.classList.contains('additional-avatar-test')).to.equal(true);
   });
 
   it('should respect total', () => {

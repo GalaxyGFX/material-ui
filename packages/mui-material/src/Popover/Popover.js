@@ -374,6 +374,7 @@ const Popover = React.forwardRef(function Popover(inProps, ref) {
           {...PaperProps}
           ref={handlePaperRef}
           className={clsx(classes.paper, PaperProps.className)}
+          ownerState={ownerState}
         >
           {children}
         </PopoverPaper>
@@ -508,7 +509,7 @@ Popover.propTypes /* remove-proptypes */ = {
    */
   open: PropTypes.bool.isRequired,
   /**
-   * Props applied to the [`Paper`](/api/paper/) element.
+   * Props applied to the [`Paper`](/material-ui/api/paper/) element.
    * @default {}
    */
   PaperProps: PropTypes /* @typescript-to-proptypes-ignore */.shape({
@@ -544,7 +545,7 @@ Popover.propTypes /* remove-proptypes */ = {
   }),
   /**
    * The component used for the transition.
-   * [Follow this guide](/components/transitions/#transitioncomponent-prop) to learn more about the requirements for this component.
+   * [Follow this guide](/material-ui/transitions/#transitioncomponent-prop) to learn more about the requirements for this component.
    * @default Grow
    */
   TransitionComponent: PropTypes.elementType,

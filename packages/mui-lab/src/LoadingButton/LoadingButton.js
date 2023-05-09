@@ -103,7 +103,7 @@ const LoadingButtonLoadingIndicator = styled('div', {
   display: 'flex',
   ...(ownerState.loadingPosition === 'start' &&
     (ownerState.variant === 'outlined' || ownerState.variant === 'contained') && {
-      left: 14,
+      left: ownerState.size === 'small' ? 10 : 14,
     }),
   ...(ownerState.loadingPosition === 'start' &&
     ownerState.variant === 'text' && {
@@ -112,11 +112,11 @@ const LoadingButtonLoadingIndicator = styled('div', {
   ...(ownerState.loadingPosition === 'center' && {
     left: '50%',
     transform: 'translate(-50%)',
-    color: theme.palette.action.disabled,
+    color: (theme.vars || theme).palette.action.disabled,
   }),
   ...(ownerState.loadingPosition === 'end' &&
     (ownerState.variant === 'outlined' || ownerState.variant === 'contained') && {
-      right: 14,
+      right: ownerState.size === 'small' ? 10 : 14,
     }),
   ...(ownerState.loadingPosition === 'end' &&
     ownerState.variant === 'text' && {
@@ -163,6 +163,12 @@ const LoadingButton = React.forwardRef(function LoadingButton(inProps, ref) {
 
   const classes = useUtilityClasses(ownerState);
 
+  const loadingButtonLoadingIndicator = loading ? (
+    <LoadingButtonLoadingIndicator className={classes.loadingIndicator} ownerState={ownerState}>
+      {loadingIndicator}
+    </LoadingButtonLoadingIndicator>
+  ) : null;
+
   return (
     <LoadingButtonRoot
       disabled={disabled || loading}
@@ -173,32 +179,8 @@ const LoadingButton = React.forwardRef(function LoadingButton(inProps, ref) {
       classes={classes}
       ownerState={ownerState}
     >
-      {ownerState.loadingPosition === 'end' ? (
-        <React.Fragment>
-          {children}
-          {loading && (
-            <LoadingButtonLoadingIndicator
-              className={classes.loadingIndicator}
-              ownerState={ownerState}
-            >
-              {loadingIndicator}
-            </LoadingButtonLoadingIndicator>
-          )}
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          {loading && (
-            <LoadingButtonLoadingIndicator
-              className={classes.loadingIndicator}
-              ownerState={ownerState}
-            >
-              {loadingIndicator}
-            </LoadingButtonLoadingIndicator>
-          )}
-
-          {children}
-        </React.Fragment>
-      )}
+      {ownerState.loadingPosition === 'end' ? children : loadingButtonLoadingIndicator}
+      {ownerState.loadingPosition === 'end' ? loadingButtonLoadingIndicator : children}
     </LoadingButtonRoot>
   );
 });
@@ -266,7 +248,10 @@ LoadingButton.propTypes /* remove-proptypes */ = {
    * The variant to use.
    * @default 'text'
    */
-  variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
+  variant: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
+    PropTypes.oneOf(['contained', 'outlined', 'text']),
+    PropTypes.string,
+  ]),
 };
 
 export default LoadingButton;

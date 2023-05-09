@@ -12,11 +12,25 @@ import FilledInput from '../FilledInput';
 import OutlinedInput from '../OutlinedInput';
 import useThemeProps from '../styles/useThemeProps';
 import useForkRef from '../utils/useForkRef';
+import styled, { rootShouldForwardProp } from '../styles/styled';
 
 const useUtilityClasses = (ownerState) => {
   const { classes } = ownerState;
   return classes;
 };
+
+const styledRootConfig = {
+  name: 'MuiSelect',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => rootShouldForwardProp(prop) && prop !== 'variant',
+  slot: 'Root',
+};
+
+const StyledInput = styled(Input, styledRootConfig)('');
+
+const StyledOutlinedInput = styled(OutlinedInput, styledRootConfig)('');
+
+const StyledFilledInput = styled(FilledInput, styledRootConfig)('');
 
 const Select = React.forwardRef(function Select(inProps, ref) {
   const props = useThemeProps({ name: 'MuiSelect', props: inProps });
@@ -25,6 +39,7 @@ const Select = React.forwardRef(function Select(inProps, ref) {
     children,
     classes: classesProp = {},
     className,
+    defaultOpen = false,
     displayEmpty = false,
     IconComponent = ArrowDropDownIcon,
     id,
@@ -40,7 +55,7 @@ const Select = React.forwardRef(function Select(inProps, ref) {
     open,
     renderValue,
     SelectDisplayProps,
-    variant: variantProps = 'outlined',
+    variant: variantProp = 'outlined',
     ...other
   } = props;
 
@@ -53,53 +68,60 @@ const Select = React.forwardRef(function Select(inProps, ref) {
     states: ['variant'],
   });
 
-  const variant = fcs.variant || variantProps;
+  const variant = fcs.variant || variantProp;
 
   const InputComponent =
     input ||
     {
-      standard: <Input />,
-      outlined: <OutlinedInput label={label} />,
-      filled: <FilledInput />,
+      standard: <StyledInput />,
+      outlined: <StyledOutlinedInput label={label} />,
+      filled: <StyledFilledInput />,
     }[variant];
 
-  const ownerState = { ...props, classes: classesProp };
+  const ownerState = { ...props, variant, classes: classesProp };
   const classes = useUtilityClasses(ownerState);
 
   const inputComponentRef = useForkRef(ref, InputComponent.ref);
 
-  return React.cloneElement(InputComponent, {
-    // Most of the logic is implemented in `SelectInput`.
-    // The `Select` component is a simple API wrapper to expose something better to play with.
-    inputComponent,
-    inputProps: {
-      children,
-      IconComponent,
-      variant,
-      type: undefined, // We render a select. We can ignore the type provided by the `Input`.
-      multiple,
-      ...(native
-        ? { id }
-        : {
-            autoWidth,
-            displayEmpty,
-            labelId,
-            MenuProps,
-            onClose,
-            onOpen,
-            open,
-            renderValue,
-            SelectDisplayProps: { id, ...SelectDisplayProps },
-          }),
-      ...inputProps,
-      classes: inputProps ? deepmerge(classes, inputProps.classes) : classes,
-      ...(input ? input.props.inputProps : {}),
-    },
-    ...(multiple && native && variant === 'outlined' ? { notched: true } : {}),
-    ref: inputComponentRef,
-    className: clsx(InputComponent.props.className, className),
-    ...other,
-  });
+  return (
+    <React.Fragment>
+      {React.cloneElement(InputComponent, {
+        // Most of the logic is implemented in `SelectInput`.
+        // The `Select` component is a simple API wrapper to expose something better to play with.
+        inputComponent,
+        inputProps: {
+          children,
+          IconComponent,
+          variant,
+          type: undefined, // We render a select. We can ignore the type provided by the `Input`.
+          multiple,
+          ...(native
+            ? { id }
+            : {
+                autoWidth,
+                defaultOpen,
+                displayEmpty,
+                labelId,
+                MenuProps,
+                onClose,
+                onOpen,
+                open,
+                renderValue,
+                SelectDisplayProps: { id, ...SelectDisplayProps },
+              }),
+          ...inputProps,
+          classes: inputProps ? deepmerge(classes, inputProps.classes) : classes,
+          ...(input ? input.props.inputProps : {}),
+        },
+        ...(multiple && native && variant === 'outlined' ? { notched: true } : {}),
+        ref: inputComponentRef,
+        className: clsx(InputComponent.props.className, className),
+        // If a custom input is provided via 'input' prop, do not allow 'variant' to be propagated to it's root element. See https://github.com/mui/material-ui/issues/33894.
+        ...(!input && { variant }),
+        ...other,
+      })}
+    </React.Fragment>
+  );
 });
 
 Select.propTypes /* remove-proptypes */ = {
@@ -129,6 +151,12 @@ Select.propTypes /* remove-proptypes */ = {
    * @ignore
    */
   className: PropTypes.string,
+  /**
+   * If `true`, the component is initially open. Use when the component open state is not controlled (i.e. the `open` prop is not defined).
+   * You can only use it when the `native` prop is `false` (default).
+   * @default false
+   */
+  defaultOpen: PropTypes.bool,
   /**
    * The default value. Use when the component is not controlled.
    */
@@ -163,7 +191,7 @@ Select.propTypes /* remove-proptypes */ = {
    */
   inputProps: PropTypes.object,
   /**
-   * See [OutlinedInput#label](/api/outlined-input/#props)
+   * See [OutlinedInput#label](/material-ui/api/outlined-input/#props)
    */
   label: PropTypes.node,
   /**
@@ -172,7 +200,7 @@ Select.propTypes /* remove-proptypes */ = {
    */
   labelId: PropTypes.string,
   /**
-   * Props applied to the [`Menu`](/api/menu/) element.
+   * Props applied to the [`Menu`](/material-ui/api/menu/) element.
    */
   MenuProps: PropTypes.object,
   /**
@@ -240,7 +268,7 @@ Select.propTypes /* remove-proptypes */ = {
    * If the value is an object it must have reference equality with the option in order to be selected.
    * If the value is not an object, the string representation must match with the string representation of the option in order to be selected.
    */
-  value: PropTypes.any,
+  value: PropTypes.oneOfType([PropTypes.oneOf(['']), PropTypes.any]),
   /**
    * The variant to use.
    * @default 'outlined'

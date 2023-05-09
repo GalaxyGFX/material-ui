@@ -1,29 +1,42 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import PopperUnstyled, { PopperUnstyledProps } from '@mui/base/PopperUnstyled';
+import { Direction, SxProps, useThemeWithoutDefault as useTheme } from '@mui/system';
 import { HTMLElementType, refType } from '@mui/utils';
-import { Direction, useThemeWithoutDefault as useTheme } from '@mui/system';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { styled, Theme, useThemeProps } from '../styles';
 
-export type PopperProps = Omit<PopperUnstyledProps, 'direction'>;
+export type PopperProps = Omit<PopperUnstyledProps, 'direction'> & {
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx?: SxProps<Theme>;
+};
+
+const PopperRoot = styled(PopperUnstyled, {
+  name: 'MuiPopper',
+  slot: 'Root',
+  overridesResolver: (props, styles) => styles.root,
+})({});
 
 /**
  *
  * Demos:
  *
- * - [Autocomplete](https://mui.com/components/autocomplete/)
- * - [Menus](https://mui.com/components/menus/)
- * - [Popper](https://mui.com/components/popper/)
+ * - [Autocomplete](https://mui.com/material-ui/react-autocomplete/)
+ * - [Menu](https://mui.com/material-ui/react-menu/)
+ * - [Popper](https://mui.com/material-ui/react-popper/)
  *
  * API:
  *
- * - [Popper API](https://mui.com/api/popper/)
+ * - [Popper API](https://mui.com/material-ui/api/popper/)
  */
 const Popper = React.forwardRef(function Popper(
-  props: PopperProps,
+  inProps: PopperProps,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const theme = useTheme<{ direction?: Direction }>();
-  return <PopperUnstyled direction={theme?.direction} {...props} ref={ref} />;
+  const props = useThemeProps({ props: inProps, name: 'MuiPopper' });
+  return <PopperRoot direction={theme?.direction} {...props} ref={ref} />;
 });
 
 Popper.propTypes /* remove-proptypes */ = {
@@ -49,6 +62,25 @@ Popper.propTypes /* remove-proptypes */ = {
     PropTypes.node,
     PropTypes.func,
   ]),
+  /**
+   * @ignore
+   */
+  component: PropTypes /* @typescript-to-proptypes-ignore */.elementType,
+  /**
+   * The components used for each slot inside the Popper.
+   * Either a string to use a HTML element or a component.
+   * @default {}
+   */
+  components: PropTypes.shape({
+    Root: PropTypes.elementType,
+  }),
+  /**
+   * The props used for each slot inside the Popper.
+   * @default {}
+   */
+  componentsProps: PropTypes.shape({
+    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  }),
   /**
    * An HTML element or function that returns one.
    * The `container` will have the portal children appended to it.
@@ -87,7 +119,7 @@ Popper.propTypes /* remove-proptypes */ = {
       effect: PropTypes.func,
       enabled: PropTypes.bool,
       fn: PropTypes.func,
-      name: PropTypes.any.isRequired,
+      name: PropTypes.any,
       options: PropTypes.object,
       phase: PropTypes.oneOf([
         'afterMain',
@@ -159,6 +191,14 @@ Popper.propTypes /* remove-proptypes */ = {
    * A ref that points to the used popper instance.
    */
   popperRef: refType,
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])),
+    PropTypes.func,
+    PropTypes.object,
+  ]),
   /**
    * Help supporting a react-transition-group/Transition component.
    * @default false

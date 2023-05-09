@@ -89,6 +89,39 @@ describe('<Tooltip />', () => {
       expect(queryByRole('tooltip')).to.equal(null);
     });
 
+    it('should not display if the title is a false', () => {
+      const { queryByRole } = render(
+        <Tooltip title={false} open>
+          <button id="testChild" type="submit">
+            Hello World
+          </button>
+        </Tooltip>,
+      );
+      expect(queryByRole('tooltip')).to.equal(null);
+    });
+
+    it('should not display if the title is a null', () => {
+      const { queryByRole } = render(
+        <Tooltip title={null} open>
+          <button id="testChild" type="submit">
+            Hello World
+          </button>
+        </Tooltip>,
+      );
+      expect(queryByRole('tooltip')).to.equal(null);
+    });
+
+    it('should not display if the title is an undefined', () => {
+      const { queryByRole } = render(
+        <Tooltip title={undefined} open>
+          <button id="testChild" type="submit">
+            Hello World
+          </button>
+        </Tooltip>,
+      );
+      expect(queryByRole('tooltip')).to.equal(null);
+    });
+
     it('should label the child when closed', () => {
       render(
         <Tooltip title="the title">
@@ -761,6 +794,7 @@ describe('<Tooltip />', () => {
                   name: 'foo',
                   enabled: true,
                   phase: 'main',
+                  fn: () => {},
                 },
               ],
             },
@@ -869,7 +903,7 @@ describe('<Tooltip />', () => {
       expect(eventLog).to.deep.equal(['blur', 'close']);
     });
 
-    // https://github.com/mui-org/material-ui/issues/19883
+    // https://github.com/mui/material-ui/issues/19883
     it('should not prevent event handlers of children', () => {
       const handleFocus = spy((event) => event.currentTarget);
       // Tooltip should not assume that event handlers of children are attached to the

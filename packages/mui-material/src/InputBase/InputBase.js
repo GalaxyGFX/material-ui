@@ -63,6 +63,7 @@ const useUtilityClasses = (ownerState) => {
     fullWidth,
     hiddenLabel,
     multiline,
+    readOnly,
     size,
     startAdornment,
     type,
@@ -81,6 +82,7 @@ const useUtilityClasses = (ownerState) => {
       startAdornment && 'adornedStart',
       endAdornment && 'adornedEnd',
       hiddenLabel && 'hiddenLabel',
+      readOnly && 'readOnly',
     ],
     input: [
       'input',
@@ -91,6 +93,7 @@ const useUtilityClasses = (ownerState) => {
       hiddenLabel && 'inputHiddenLabel',
       startAdornment && 'inputAdornedStart',
       endAdornment && 'inputAdornedEnd',
+      readOnly && 'readOnly',
     ],
   };
 
@@ -103,7 +106,7 @@ export const InputBaseRoot = styled('div', {
   overridesResolver: rootOverridesResolver,
 })(({ theme, ownerState }) => ({
   ...theme.typography.body1,
-  color: theme.palette.text.primary,
+  color: (theme.vars || theme).palette.text.primary,
   lineHeight: '1.4375em', // 23px
   boxSizing: 'border-box', // Prevent padding issue with fullWidth.
   position: 'relative',
@@ -111,7 +114,7 @@ export const InputBaseRoot = styled('div', {
   display: 'inline-flex',
   alignItems: 'center',
   [`&.${inputBaseClasses.disabled}`]: {
-    color: theme.palette.text.disabled,
+    color: (theme.vars || theme).palette.text.disabled,
     cursor: 'default',
   },
   ...(ownerState.multiline && {
@@ -133,7 +136,13 @@ export const InputBaseComponent = styled('input', {
   const light = theme.palette.mode === 'light';
   const placeholder = {
     color: 'currentColor',
-    opacity: light ? 0.42 : 0.5,
+    ...(theme.vars
+      ? {
+          opacity: theme.vars.opacity.inputPlaceholder,
+        }
+      : {
+          opacity: light ? 0.42 : 0.5,
+        }),
     transition: theme.transitions.create('opacity', {
       duration: theme.transitions.duration.shorter,
     }),
@@ -143,9 +152,13 @@ export const InputBaseComponent = styled('input', {
     opacity: '0 !important',
   };
 
-  const placeholderVisible = {
-    opacity: light ? 0.42 : 0.5,
-  };
+  const placeholderVisible = theme.vars
+    ? {
+        opacity: theme.vars.opacity.inputPlaceholder,
+      }
+    : {
+        opacity: light ? 0.42 : 0.5,
+      };
 
   return {
     font: 'inherit',
@@ -192,7 +205,7 @@ export const InputBaseComponent = styled('input', {
     },
     [`&.${inputBaseClasses.disabled}`]: {
       opacity: 1, // Reset iOS opacity
-      WebkitTextFillColor: theme.palette.text.disabled, // Fix opacity Safari bug
+      WebkitTextFillColor: (theme.vars || theme).palette.text.disabled, // Fix opacity Safari bug
     },
     '&:-webkit-autofill': {
       animationDuration: '5000s',
@@ -576,7 +589,9 @@ InputBase.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.string,
   /**
-   * The color of the component. It supports those theme colors that make sense for this component.
+   * The color of the component.
+   * It supports both default and custom theme colors, which can be added as shown in the
+   * [palette customization guide](https://mui.com/material-ui/customization/palette/#adding-new-colors).
    * The prop defaults to the value (`'primary'`) inherited from the parent FormControl component.
    */
   color: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
@@ -596,7 +611,10 @@ InputBase.propTypes /* remove-proptypes */ = {
    * The props used for each slot inside the Input.
    * @default {}
    */
-  componentsProps: PropTypes.object,
+  componentsProps: PropTypes.shape({
+    input: PropTypes.object,
+    root: PropTypes.object,
+  }),
   /**
    * The default value. Use when the component is not controlled.
    */
@@ -660,7 +678,7 @@ InputBase.propTypes /* remove-proptypes */ = {
    */
   minRows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
-   * If `true`, a `textarea` element is rendered.
+   * If `true`, a [TextareaAutosize](/material-ui/react-textarea-autosize/) element is rendered.
    * @default false
    */
   multiline: PropTypes.bool,

@@ -10,8 +10,8 @@ import { useRouter } from 'next/router';
 // So we can write code like:
 //
 // <Button
-//   ga-event-category="demo"
-//   ga-event-action="expand"
+//   data-ga-event-category="demo"
+//   data-ga-event-action="expand"
 // >
 //   Foo
 // </Button>
@@ -96,9 +96,10 @@ function GoogleAnalytics() {
      * @type {MediaQueryList}
      */
     const matchMedia = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-    matchMedia.addEventListener('change', trackDevicePixelRation);
+    // Intentionally use deprecated listener methods to support iOS & old browsers
+    matchMedia.addListener(trackDevicePixelRation);
     return () => {
-      matchMedia.removeEventListener('change', trackDevicePixelRation);
+      matchMedia.removeListener(trackDevicePixelRation);
     };
   }, []);
 

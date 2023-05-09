@@ -166,7 +166,7 @@ export function testRootClass(element, getOptions) {
     // we established that the root component renders the outermost host previously. We immediately
     // jump to the host component because some components pass the `root` class
     // to the `classes` prop of the root component.
-    // https://github.com/mui-org/material-ui/blob/f9896bcd129a1209153106296b3d2487547ba205/packages/material-ui/src/OutlinedInput/OutlinedInput.js#L101
+    // https://github.com/mui/material-ui/blob/f9896bcd129a1209153106296b3d2487547ba205/packages/material-ui/src/OutlinedInput/OutlinedInput.js#L101
     expect(container.firstChild).to.have.class(className);
     expect(container.firstChild).to.have.class(classes.root);
     expect(document.querySelectorAll(`.${classes.root}`).length).to.equal(1);
@@ -208,12 +208,13 @@ export function testReactTestRenderer(element) {
  * @property {(node: React.ReactElement) => import('./createRenderer').MuiRenderResult} [render] - Should be a return value from createRenderer
  * @property {Array<keyof typeof fullSuite>} [only] - If specified only run the tests listed
  * @property {any} refInstanceof - `ref` will be an instanceof this constructor.
- * @property {Array<keyof typeof fullSuite>} [skip] - Skip the specified tests
+ * @property {Array<keyof typeof fullSuite | 'classesRoot'>} [skip] - Skip the specified tests
  * @property {string} [testComponentsRootPropWith] - The host component that should be rendered instead.
  * @property {{ slotName: string, slotClassName: string } | Array<{ slotName: string, slotClassName: string }>} [testDeepOverrides]
  * @property {{ prop?: string, value?: any, styleKey: string }} [testStateOverrides]
  * @property {object} [testVariantProps]
  * @property {(mount: (node: React.ReactNode) => import('enzyme').ReactWrapper) => (node: React.ReactNode) => import('enzyme').ReactWrapper} [wrapMount] - You can use this option to mount the component with enzyme in a WrapperComponent. Make sure the returned node corresponds to the input node and not the wrapper component.
+ * @property {boolean} [testCustomVariant] - The component supports custom variant
  */
 
 function throwMissingPropError(field) {
@@ -522,7 +523,7 @@ function testThemeVariants(element, getOptions) {
       }
 
       const testStyle = {
-        marginTop: '13px',
+        mixBlendMode: 'darken',
       };
 
       const theme = createTheme({
@@ -547,6 +548,40 @@ function testThemeVariants(element, getOptions) {
 
       expect(getByTestId('with-props')).to.toHaveComputedStyle(testStyle);
       expect(getByTestId('without-props')).not.to.toHaveComputedStyle(testStyle);
+    });
+
+    it('supports custom variant', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      const { muiName, testCustomVariant, render, ThemeProvider = MDThemeProvider } = getOptions();
+
+      if (!testCustomVariant) {
+        return;
+      }
+
+      const theme = createTheme({
+        components: {
+          [muiName]: {
+            styleOverrides: {
+              root: ({ ownerState }) => ({
+                ...(ownerState.variant === 'unknown' && {
+                  mixBlendMode: 'darken',
+                }),
+              }),
+            },
+          },
+        },
+      });
+
+      const { getByTestId } = render(
+        <ThemeProvider theme={theme}>
+          {React.cloneElement(element, { variant: 'unknown', 'data-testid': 'custom-variant' })}
+        </ThemeProvider>,
+      );
+
+      expect(getByTestId('custom-variant')).toHaveComputedStyle({ mixBlendMode: 'darken' });
     });
   });
 }

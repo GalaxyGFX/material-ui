@@ -2,11 +2,8 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { RemixServer } from 'remix';
 import type { EntryContext } from 'remix';
-
 import createEmotionCache from './src/createEmotionCache';
 import theme from './src/theme';
-import StylesContext from './src/StylesContext';
-
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { CacheProvider } from '@emotion/react';
@@ -32,20 +29,23 @@ export default function handleRequest(
   );
 
   // Render the component to a string.
-  const html = renderToString(
-    <StylesContext.Provider value={null}>
-      <MuiRemixServer />
-    </StylesContext.Provider>,
-  );
+  const html = renderToString(<MuiRemixServer />);
 
   // Grab the CSS from emotion
-  const emotionChunks = extractCriticalToChunks(html);
+  const { styles } = extractCriticalToChunks(html);
 
-  // Re-render including the extracted css.
-  const markup = renderToString(
-    <StylesContext.Provider value={emotionChunks.styles}>
-      <MuiRemixServer />
-    </StylesContext.Provider>,
+  let stylesHTML = '';
+
+  styles.forEach(({ key, ids, css }) => {
+    const emotionKey = `${key} ${ids.join(' ')}`;
+    const newStyleTag = `<style data-emotion="${emotionKey}">${css}</style>`;
+    stylesHTML = `${stylesHTML}${newStyleTag}`;
+  });
+
+  // Add the Emotion style tags after the insertion point meta tag
+  const markup = html.replace(
+    /<meta(\s)*name="emotion-insertion-point"(\s)*content="emotion-insertion-point"(\s)*\/>/,
+    `<meta name="emotion-insertion-point" content="emotion-insertion-point"/>${stylesHTML}`,
   );
 
   responseHeaders.set('Content-Type', 'text/html');

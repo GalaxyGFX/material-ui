@@ -27,13 +27,22 @@ const Root = styled('ul')(({ theme }) => ({
   },
 }));
 
+const defaultPackageNames = {
+  'material-ui': '@mui/material',
+  'joy-ui': '@mui/joy',
+  base: '@mui/base',
+  system: '@mui/system',
+};
+
 export default function ComponentLinkHeader(props) {
   const {
-    headers,
-    headers: { packageName = '@mui/material' },
-    options,
+    markdown: { headers },
+    design,
   } = props;
   const t = useTranslate();
+
+  const packageName =
+    headers.packageName ?? defaultPackageNames[headers.product] ?? '@mui/material';
 
   return (
     <Root>
@@ -46,7 +55,7 @@ export default function ComponentLinkHeader(props) {
             size="small"
             variant="outlined"
             rel="nofollow"
-            href={`https://github.com/mui-org/material-ui/labels/${encodeURIComponent(
+            href={`${process.env.SOURCE_CODE_REPO}/labels/${encodeURIComponent(
               headers.githubLabel,
             )}`}
             icon={<InfoOutlinedIcon />}
@@ -115,7 +124,7 @@ export default function ComponentLinkHeader(props) {
           />
         </li>
       ) : null}
-      {options.design !== false ? (
+      {design !== false ? (
         <React.Fragment>
           <li>
             <Chip
@@ -125,7 +134,7 @@ export default function ComponentLinkHeader(props) {
               size="small"
               variant="outlined"
               rel="nofollow"
-              href="https://material-ui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+              href="https://mui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
               icon={<FigmaIcon />}
               data-ga-event-category="ComponentLinkHeader"
               data-ga-event-action="click"
@@ -142,7 +151,7 @@ export default function ComponentLinkHeader(props) {
               size="small"
               variant="outlined"
               rel="nofollow"
-              href="https://material-ui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+              href="https://mui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
               icon={<AdobeXDIcon />}
               data-ga-event-category="ComponentLinkHeader"
               data-ga-event-action="click"
@@ -159,7 +168,7 @@ export default function ComponentLinkHeader(props) {
               size="small"
               variant="outlined"
               rel="nofollow"
-              href="https://material-ui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+              href="https://mui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
               icon={<SketchIcon />}
               data-ga-event-category="ComponentLinkHeader"
               data-ga-event-action="click"
@@ -175,6 +184,8 @@ export default function ComponentLinkHeader(props) {
 }
 
 ComponentLinkHeader.propTypes = {
-  headers: PropTypes.object.isRequired,
-  options: PropTypes.object.isRequired,
+  design: PropTypes.bool,
+  markdown: PropTypes.shape({
+    headers: PropTypes.object.isRequired,
+  }).isRequired,
 };

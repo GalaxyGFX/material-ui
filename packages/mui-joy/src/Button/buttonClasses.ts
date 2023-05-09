@@ -1,4 +1,4 @@
-import { generateUtilityClass, generateUtilityClasses } from '@mui/base';
+import { generateUtilityClass, generateUtilityClasses } from '../className';
 
 export interface ButtonClasses {
   /** Styles applied to the root element. */
@@ -15,33 +15,39 @@ export interface ButtonClasses {
   colorSuccess: string;
   /** Styles applied to the root element if `color="warning"`. */
   colorWarning: string;
-  /** Styles applied to the root element if `variant="text"`. */
-  variantText: string;
+  /** Styles applied to the root element if `variant="plain"`. */
+  variantPlain: string;
   /** Styles applied to the root element if `variant="outlined"`. */
   variantOutlined: string;
-  /** Styles applied to the root element if `variant="light"`. */
-  variantLight: string;
-  /** Styles applied to the root element if `variant="contained"`. */
-  variantContained: string;
+  /** Styles applied to the root element if `variant="soft"`. */
+  variantSoft: string;
+  /** Styles applied to the root element if `variant="solid"`. */
+  variantSolid: string;
   /** State class applied to the ButtonBase root element if the button is keyboard focused. */
   focusVisible: string;
   /** State class applied to the root element if `disabled={true}`. */
   disabled: string;
-  /** Styles applied to the root element if `size="small"`. */
-  sizeSmall: string;
-  /** Styles applied to the root element if `size="large"`. */
-  sizeLarge: string;
+  /** Styles applied to the root element if `size="sm"`. */
+  sizeSm: string;
+  /** Styles applied to the root element if `size="md"`. */
+  sizeMd: string;
+  /** Styles applied to the root element if `size="lg"`. */
+  sizeLg: string;
   /** Styles applied to the root element if `fullWidth={true}`. */
   fullWidth: string;
+  /** Styles applied to the startDecorator element if supplied. */
+  startDecorator: string;
+  /** Styles applied to the endDecorator element if supplied. */
+  endDecorator: string;
 }
 
 export type ButtonClassKey = keyof ButtonClasses;
 
 export function getButtonUtilityClass(slot: string): string {
-  return generateUtilityClass('MuiButton', slot);
+  return generateUtilityClass('JoyButton', slot);
 }
 
-const buttonClasses: ButtonClasses = generateUtilityClasses('MuiButton', [
+const buttonClasses: ButtonClasses = generateUtilityClasses('JoyButton', [
   'root',
   'colorPrimary',
   'colorNeutral',
@@ -49,15 +55,18 @@ const buttonClasses: ButtonClasses = generateUtilityClasses('MuiButton', [
   'colorInfo',
   'colorSuccess',
   'colorWarning',
-  'variantText',
+  'variantPlain',
   'variantOutlined',
-  'variantLight',
-  'variantContained',
+  'variantSoft',
+  'variantSolid',
   'focusVisible',
   'disabled',
-  'sizeSmall',
-  'sizeLarge',
+  'sizeSm',
+  'sizeMd',
+  'sizeLg',
   'fullWidth',
+  'startDecorator',
+  'endDecorator',
 ]);
 
 export default buttonClasses;

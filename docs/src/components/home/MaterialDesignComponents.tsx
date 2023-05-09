@@ -7,6 +7,7 @@ import {
   useTheme,
   Theme,
   ThemeOptions,
+  alpha,
 } from '@mui/material/styles';
 import { capitalize } from '@mui/material/utils';
 import Alert from '@mui/material/Alert';
@@ -39,7 +40,9 @@ import Link from 'docs/src/modules/components/Link';
 const Grid = styled('div')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   backgroundColor:
-    theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[50],
+    theme.palette.mode === 'dark'
+      ? theme.palette.background.paper
+      : alpha(theme.palette.grey[50], 0.4),
   display: 'grid',
   gridTemplateColumns: '1fr',
   gridAutoRows: 240,
@@ -56,10 +59,10 @@ const Grid = styled('div')(({ theme }) => ({
     padding: theme.spacing(2),
     alignSelf: 'stretch',
     border: '1px solid',
-    borderColor: theme.palette.divider,
-    '&:last-of-type': {
-      backgroundColor: theme.palette.background.default,
-    },
+    borderColor:
+      theme.palette.mode === 'dark'
+        ? alpha(theme.palette.primaryDark[600], 0.3)
+        : theme.palette.grey[200],
     [theme.breakpoints.only('xs')]: {
       '&:first-of-type': {
         borderTopLeftRadius: theme.shape.borderRadius,
@@ -68,7 +71,6 @@ const Grid = styled('div')(({ theme }) => ({
       '&:last-of-type': {
         borderBottomLeftRadius: theme.shape.borderRadius,
         borderBottomRightRadius: theme.shape.borderRadius,
-        borderStyle: 'dashed',
       },
       '&:not(:first-of-type)': {
         marginTop: -1,
@@ -103,7 +105,6 @@ const Grid = styled('div')(({ theme }) => ({
       },
       '&:last-of-type': {
         borderBottomRightRadius: theme.shape.borderRadius,
-        borderStyle: 'dashed',
       },
       '&:nth-last-of-type(3)': {
         borderBottomLeftRadius: theme.shape.borderRadius,
@@ -175,7 +176,7 @@ function Demo({
           })}
         </ThemeProvider>
       </Box>
-      <Typography fontWeight="bold" variant="body2">
+      <Typography fontWeight="semiBold" variant="body2">
         {name}
       </Typography>
     </Box>
@@ -228,7 +229,7 @@ export function buildTheme(theme: Theme): ThemeOptions {
       ...theme.typography,
       button: {
         ...theme.typography.button,
-        fontSize: '1rem',
+        fontSize: '0.875rem',
         lineHeight: 24 / 16,
       },
     },
@@ -243,19 +244,28 @@ export function buildTheme(theme: Theme): ThemeOptions {
           disableElevation: true,
         },
         styleOverrides: {
-          text: {
-            color:
-              theme.palette.mode === 'dark'
-                ? theme.palette.primaryDark[200]
-                : theme.palette.primaryDark[700],
+          root: {
+            borderRadius: '99px',
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            lineHeight: 24 / 16,
+          },
+          sizeSmall: {
+            padding: theme.spacing(0.5, 1),
           },
           sizeMedium: {
-            padding: theme.spacing(1, 2),
+            padding: theme.spacing(0.8, 2),
           },
           sizeLarge: {
-            padding: theme.spacing(1.5, 2.5),
+            padding: theme.spacing(1, 2),
             fontSize: '1rem',
-            lineHeight: 24 / 16,
+          },
+          contained: {
+            color: theme.palette.primaryDark[50],
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? theme.palette.primaryDark[400]
+                : theme.palette.primaryDark[600],
           },
           iconSizeSmall: {
             '& > *:nth-of-type(1)': {
@@ -264,18 +274,13 @@ export function buildTheme(theme: Theme): ThemeOptions {
           },
           iconSizeMedium: {
             '& > *:nth-of-type(1)': {
-              fontSize: '1rem',
+              fontSize: '0.875rem',
             },
           },
-          outlined: {
-            borderColor:
-              theme.palette.mode === 'dark'
-                ? theme.palette.primaryDark[200]
-                : theme.palette.primaryDark[700],
-            color:
-              theme.palette.mode === 'dark'
-                ? theme.palette.primaryDark[200]
-                : theme.palette.primaryDark[700],
+          iconSizeLarge: {
+            '& > *:nth-of-type(1)': {
+              fontSize: '1rem',
+            },
           },
         },
       },
@@ -294,23 +299,58 @@ export function buildTheme(theme: Theme): ThemeOptions {
             },
           },
           filled: {
+            color: theme.palette.primaryDark[50],
             backgroundColor:
               theme.palette.mode === 'dark'
-                ? theme.palette.primaryDark[800]
+                ? theme.palette.primaryDark[500]
                 : theme.palette.primaryDark[700],
             '& .MuiAlert-icon': {
-              color: theme.palette.primary[100],
+              color: theme.palette.primary[50],
+            },
+          },
+          outlined: {
+            color:
+              theme.palette.mode === 'dark'
+                ? theme.palette.primaryDark[50]
+                : theme.palette.primaryDark[700],
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primaryDark[700], 0.5)
+                : alpha(theme.palette.primaryDark[50], 0.5),
+            borderColor:
+              theme.palette.mode === 'dark'
+                ? theme.palette.primaryDark[500]
+                : theme.palette.primaryDark[300],
+            '& .MuiAlert-icon': {
+              color:
+                theme.palette.mode === 'dark'
+                  ? theme.palette.primaryDark[100]
+                  : theme.palette.primaryDark[800],
             },
           },
           message: {
             padding: 0,
-            fontWeight: 700,
+            fontWeight: 500,
           },
           standardInfo: {
-            backgroundColor: theme.palette.primaryDark[100],
-            color: theme.palette.primaryDark[600],
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? theme.palette.primaryDark[900]
+                : theme.palette.primaryDark[50],
+            color:
+              theme.palette.mode === 'dark'
+                ? theme.palette.primaryDark[50]
+                : theme.palette.primaryDark[700],
+            border: '1px solid',
+            borderColor:
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primaryDark[500], 0.5)
+                : theme.palette.primaryDark[100],
             '& .MuiAlert-icon': {
-              color: theme.palette.primaryDark[600],
+              color:
+                theme.palette.mode === 'dark'
+                  ? theme.palette.primaryDark[50]
+                  : theme.palette.primaryDark[700],
             },
           },
           icon: {
@@ -395,7 +435,9 @@ export function buildTheme(theme: Theme): ThemeOptions {
       MuiPopover: {
         styleOverrides: {
           paper: {
-            boxShadow: '0px 4px 20px rgba(170, 180, 190, 0.1)',
+            boxShadow: `0px 4px 20px ${
+              theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(170, 180, 190, 0.3)'
+            }`,
           },
         },
       },
@@ -440,7 +482,7 @@ export default function MaterialDesignComponents() {
           mt: { xs: 2, md: 4 },
           mb: 2,
           display: 'flex',
-          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+          justifyContent: { sm: 'flex-start', md: 'flex-end' },
         }}
       >
         <StyledChip
@@ -565,14 +607,14 @@ export default function MaterialDesignComponents() {
           }}
         >
           <Typography variant="body2" fontWeight="bold" sx={{ mb: 0.5 }}>
-            Need more components?
+            Want to see more?
           </Typography>
           <Typography
             variant="body2"
             color="text.secondary"
             sx={{ mb: 0.5, maxWidth: 250, mx: 'auto' }}
           >
-            Check the documentation to see the details of every component!
+            Check out the docs for details of the complete library.
           </Typography>
           <Button
             component={Link}
@@ -580,7 +622,7 @@ export default function MaterialDesignComponents() {
             href={ROUTES.documentation}
             endIcon={<KeyboardArrowRightRounded />}
           >
-            Get started
+            Learn more
           </Button>
         </Box>
       </Grid>

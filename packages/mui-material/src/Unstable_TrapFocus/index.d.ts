@@ -1,2 +1,2 @@
-export { default } from '@mui/base/Unstable_TrapFocus';
-export * from '@mui/base/Unstable_TrapFocus';
+export { default } from '@mui/base/FocusTrap';
+export * from '@mui/base/FocusTrap';

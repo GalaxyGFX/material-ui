@@ -1,15 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { unstable_useForkRef as useForkRef } from '@mui/utils';
+import { OverridableComponent } from '@mui/types';
 import composeClasses from '../composeClasses';
 import { getButtonUnstyledUtilityClass } from './buttonUnstyledClasses';
-import ButtonUnstyledProps, {
+import {
+  ButtonUnstyledProps,
   ButtonUnstyledOwnProps,
   ButtonUnstyledTypeMap,
-} from './ButtonUnstyledProps';
+  ButtonUnstyledRootSlotProps,
+} from './ButtonUnstyled.types';
 import useButton from './useButton';
-import appendOwnerState from '../utils/appendOwnerState';
+import { WithOptionalOwnerState } from '../utils/types';
+import { useSlotProps } from '../utils';
 
 export interface ButtonUnstyledOwnerState extends ButtonUnstyledOwnProps {
   focusVisible: boolean;
@@ -30,23 +32,23 @@ const useUtilityClasses = (ownerState: ButtonUnstyledOwnerState) => {
  *
  * Demos:
  *
- * - [Buttons](https://mui.com/components/buttons/)
+ * - [Unstyled Button](https://mui.com/base/react-button/)
  *
  * API:
  *
- * - [ButtonUnstyled API](https://mui.com/api/button-unstyled/)
+ * - [ButtonUnstyled API](https://mui.com/base/api/button-unstyled/)
  */
 const ButtonUnstyled = React.forwardRef(function ButtonUnstyled<
-  D extends React.ElementType = ButtonUnstyledTypeMap['defaultComponent'],
->(props: ButtonUnstyledProps<D>, ref: React.ForwardedRef<any>) {
+  BaseComponentType extends React.ElementType = ButtonUnstyledTypeMap['defaultComponent'],
+>(props: ButtonUnstyledProps<BaseComponentType>, forwardedRef: React.ForwardedRef<any>) {
   const {
-    className,
+    action,
+    children,
     component,
     components = {},
     componentsProps = {},
-    children,
     disabled,
-    action,
+    focusableWhenDisabled = false,
     onBlur,
     onClick,
     onFocus,
@@ -58,11 +60,10 @@ const ButtonUnstyled = React.forwardRef(function ButtonUnstyled<
   } = props;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement>();
-  const handleRef = useForkRef(buttonRef, ref);
 
   const { active, focusVisible, setFocusVisible, getRootProps } = useButton({
     ...props,
-    ref: handleRef,
+    focusableWhenDisabled,
   });
 
   React.useImperativeHandle(
@@ -76,31 +77,30 @@ const ButtonUnstyled = React.forwardRef(function ButtonUnstyled<
     [setFocusVisible],
   );
 
-  const ownerState = {
+  const ownerState: ButtonUnstyledOwnerState = {
     ...props,
     active,
+    focusableWhenDisabled,
     focusVisible,
   };
 
-  const ButtonRoot: React.ElementType = component ?? components.Root ?? 'button';
-  const buttonRootProps = appendOwnerState(
-    ButtonRoot,
-    { ...other, ...componentsProps.root },
-    ownerState,
-  );
-
   const classes = useUtilityClasses(ownerState);
 
-  return (
-    <ButtonRoot
-      {...getRootProps()}
-      {...buttonRootProps}
-      className={clsx(classes.root, className, buttonRootProps.className)}
-    >
-      {children}
-    </ButtonRoot>
-  );
-});
+  const Root: React.ElementType = component ?? components.Root ?? 'button';
+  const rootProps: WithOptionalOwnerState<ButtonUnstyledRootSlotProps> = useSlotProps({
+    elementType: Root,
+    getSlotProps: getRootProps,
+    externalForwardedProps: other,
+    externalSlotProps: componentsProps.root,
+    additionalProps: {
+      ref: forwardedRef,
+    },
+    ownerState,
+    className: classes.root,
+  });
+
+  return <Root {...rootProps}>{children}</Root>;
+}) as OverridableComponent<ButtonUnstyledTypeMap>;
 
 ButtonUnstyled.propTypes /* remove-proptypes */ = {
   // ----------------------------- Warning --------------------------------
@@ -123,14 +123,8 @@ ButtonUnstyled.propTypes /* remove-proptypes */ = {
    */
   children: PropTypes.node,
   /**
-   * @ignore
-   */
-  className: PropTypes.string,
-  /**
-   * The component used for the Root slot.
+   * The component used for the root node.
    * Either a string to use a HTML element or a component.
-   * This is equivalent to `components.Root`. If both are provided, the `component` is used.
-   * @default 'button'
    */
   component: PropTypes.elementType,
   /**
@@ -142,14 +136,26 @@ ButtonUnstyled.propTypes /* remove-proptypes */ = {
     Root: PropTypes.elementType,
   }),
   /**
-   * @ignore
+   * The props used for each slot inside the Button.
+   * @default {}
    */
-  componentsProps: PropTypes.object,
+  componentsProps: PropTypes.shape({
+    root: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  }),
   /**
    * If `true`, the component is disabled.
    * @default false
    */
   disabled: PropTypes.bool,
+  /**
+   * If `true`, allows a disabled button to receive focus.
+   * @default false
+   */
+  focusableWhenDisabled: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  onBlur: PropTypes.func,
   /**
    * @ignore
    */
@@ -157,7 +163,23 @@ ButtonUnstyled.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  onFocus: PropTypes.func,
+  /**
+   * @ignore
+   */
   onFocusVisible: PropTypes.func,
+  /**
+   * @ignore
+   */
+  onKeyDown: PropTypes.func,
+  /**
+   * @ignore
+   */
+  onKeyUp: PropTypes.func,
+  /**
+   * @ignore
+   */
+  onMouseLeave: PropTypes.func,
 } as any;
 
 export default ButtonUnstyled;

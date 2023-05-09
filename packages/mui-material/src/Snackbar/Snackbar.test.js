@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { describeConformance, act, createRenderer, fireEvent } from 'test/utils';
 import Snackbar, { snackbarClasses as classes } from '@mui/material/Snackbar';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 describe('<Snackbar />', () => {
   const { clock, render: clientRender } = createRenderer({ clock: 'fake' });
@@ -42,7 +43,7 @@ describe('<Snackbar />', () => {
       const handleClose = spy();
       render(<Snackbar open onClose={handleClose} message="message" />);
 
-      const event = new window.Event('click', { view: window, bubbles: true, cancelable: true });
+      const event = new window.Event('click', { bubbles: true, cancelable: true });
       document.body.dispatchEvent(event);
 
       expect(handleClose.callCount).to.equal(1);
@@ -436,7 +437,6 @@ describe('<Snackbar />', () => {
 
       act(() => {
         const bEvent = new window.Event('blur', {
-          view: window,
           bubbles: false,
           cancelable: false,
         });
@@ -451,7 +451,6 @@ describe('<Snackbar />', () => {
 
       act(() => {
         const fEvent = new window.Event('focus', {
-          view: window,
           bubbles: false,
           cancelable: false,
         });
@@ -480,7 +479,7 @@ describe('<Snackbar />', () => {
       );
 
       act(() => {
-        const event = new window.Event('blur', { view: window, bubbles: false, cancelable: false });
+        const event = new window.Event('blur', { bubbles: false, cancelable: false });
         window.dispatchEvent(event);
       });
 
@@ -532,6 +531,67 @@ describe('<Snackbar />', () => {
       const Transition = () => <div className="cloned-element-class" ref={transitionRef} />;
       const { container } = render(<Snackbar open TransitionComponent={Transition} />);
       expect(container).to.contain(transitionRef.current);
+    });
+  });
+
+  describe('prop: transitionDuration', () => {
+    it('should render the default theme values by default', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      const theme = createTheme();
+      const enteringScreenDurationInSeconds = theme.transitions.duration.enteringScreen / 1000;
+      const { getByTestId } = render(
+        <Snackbar open message="Hello, World!">
+          <div data-testid="child">Foo</div>
+        </Snackbar>,
+      );
+
+      const child = getByTestId('child');
+      expect(child).toHaveComputedStyle({
+        transitionDuration: `${enteringScreenDurationInSeconds}s, 0.15s`,
+      });
+    });
+
+    it('should render the custom theme values', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      const theme = createTheme({
+        transitions: {
+          duration: {
+            enteringScreen: 1,
+          },
+        },
+      });
+
+      const { getByTestId } = render(
+        <ThemeProvider theme={theme}>
+          <Snackbar open message="Hello, World!">
+            <div data-testid="child">Foo</div>
+          </Snackbar>
+        </ThemeProvider>,
+      );
+
+      const child = getByTestId('child');
+      expect(child).toHaveComputedStyle({ transitionDuration: '0.001s, 0.001s' });
+    });
+
+    it('should render the values provided via prop', function test() {
+      if (/jsdom/.test(window.navigator.userAgent)) {
+        this.skip();
+      }
+
+      const { getByTestId } = render(
+        <Snackbar open message="Hello, World!" transitionDuration={1}>
+          <div data-testid="child">Foo</div>
+        </Snackbar>,
+      );
+
+      const child = getByTestId('child');
+      expect(child).toHaveComputedStyle({ transitionDuration: '0.001s, 0.001s' });
     });
   });
 });

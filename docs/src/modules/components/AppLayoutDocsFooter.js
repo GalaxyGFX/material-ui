@@ -85,7 +85,7 @@ function orderedPages(pages, current = []) {
     }, current)
     .filter((page) => {
       return (
-        page.ordered !== false &&
+        page.inSideNav !== false &&
         // ignore external pages
         page.pathname.startsWith('/')
       );
@@ -105,6 +105,72 @@ async function postFeedback(data) {
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+async function postFeedbackOnSlack(data) {
+  const { rating, comment } = data;
+
+  if (!comment || comment.length < 10) {
+    return;
+  }
+
+  /**
+   Not used because I ignore how to encode that with:
+      'content-type': 'application/x-www-form-urlencoded'
+   
+   const complexSlackMessage = {
+     blocks: [
+       {
+         type: 'header',
+         text: {
+           type: 'plain_text',
+           text: `New comment ${rating > 0 ? '👍' : '👎'}`,
+           emoji: true,
+         },
+       },
+       {
+         type: 'section',
+         text: {
+           type: 'plain_text',
+           text: comment,
+           emoji: true,
+         },
+       },
+       {
+         type: 'section',
+         text: {
+           type: 'mrkdwn',
+           text: `v: ${version}, lang: ${language}`,
+         },
+         accessory: {
+           type: 'button',
+           text: {
+             type: 'plain_text',
+             text: 'Go to the page',
+             emoji: true,
+           },
+           url: window.location.host,
+         },
+       },
+     ],
+   };
+  */
+
+  const simpleSlackMessage = [
+    `New comment ${rating > 0 ? '👍' : '👎'}`,
+    `>${comment.split('\n').join('\n>')}`,
+    `sent from ${window.location.href}`,
+  ].join('\n\n');
+
+  try {
+    await fetch(`https://hooks.slack.com/services/${process.env.SLACK_FEEDBACKS_TOKEN}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: JSON.stringify({ text: simpleSlackMessage }),
+    });
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -135,6 +201,7 @@ async function submitFeedback(page, rating, comment, language) {
     language,
   };
 
+  await postFeedbackOnSlack(data);
   const result = await postFeedback(data);
   if (result) {
     document.cookie = `feedbackId=${result.id};path=/;max-age=31536000`;
@@ -164,8 +231,9 @@ function usePageNeighbours() {
   const { activePage, pages } = React.useContext(PageContext);
   const pageList = orderedPages(pages);
   const currentPageNum = pageList.indexOf(activePage);
+
   if (currentPageNum === -1) {
-    return { prevPage: undefined, nextPage: undefined };
+    return { prevPage: null, nextPage: null };
   }
 
   const prevPage = pageList[currentPageNum - 1] ?? null;
@@ -308,7 +376,7 @@ export default function AppLayoutDocsFooter() {
             </PaginationDiv>
           </React.Fragment>
         )}
-        <Collapse in={commentOpen} onEntered={handleEntered}>
+        <Collapse in={commentOpen} unmountOnExit onEntered={handleEntered}>
           <form
             aria-labelledby="feedback-message"
             onReset={handleCancelComment}

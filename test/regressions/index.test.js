@@ -77,6 +77,12 @@ async function main() {
   await fse.emptyDir(screenshotDir);
 
   describe('visual regressions', () => {
+    beforeEach(async () => {
+      await page.evaluate(() => {
+        localStorage.clear();
+      });
+    });
+
     after(async () => {
       await browser.close();
     });
@@ -114,29 +120,6 @@ async function main() {
         await takeScreenshot({ testcase, route: '/regression-Rating/PreciseFocusVisibleRating2' });
         await page.keyboard.press('ArrowRight');
         await takeScreenshot({ testcase, route: '/regression-Rating/PreciseFocusVisibleRating3' });
-      });
-    });
-
-    describe('DateTimePicker', () => {
-      it('should handle change in pointer correctly', async () => {
-        const index = routes.findIndex(
-          (route) => route === '/regression-pickers/UncontrolledDateTimePicker',
-        );
-        const testcase = await renderFixture(index);
-
-        await page.click('[aria-label="Choose date"]');
-        await page.click('[aria-label*="switch to year view"]');
-        await takeScreenshot({
-          testcase: await page.waitForSelector('[role="dialog"]'),
-          route: '/regression-pickers/UncontrolledDateTimePicker-desktop',
-        });
-        await page.evaluate(() => {
-          window.muiTogglePickerMode();
-        });
-        await takeScreenshot({
-          testcase,
-          route: '/regression-pickers/UncontrolledDateTimePicker-mobile',
-        });
       });
     });
   });

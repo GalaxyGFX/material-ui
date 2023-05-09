@@ -79,6 +79,7 @@ declare global {
        * Matcher with useful error messages if the dates don't match.
        */
       toEqualDateTime(expected: Date): void;
+      toHaveAccessibleDescription(description: string): void;
       /**
        * Checks if the accessible name computation (according to `accname` spec)
        * matches the expectation.
@@ -515,7 +516,8 @@ chai.use((chaiAPI, utils) => {
             ? [expectedMessagesInput]
             : expectedMessagesInput.slice();
         const unexpectedMessages: Error[] = [];
-        let caughtError = null;
+        // TODO Remove type once MUI X enables noImplicitAny
+        let caughtError: unknown | null = null;
 
         this.assert(
           expectedMessages.length > 0,
@@ -551,7 +553,8 @@ chai.use((chaiAPI, utils) => {
           const expectedMessage = remainingMessages.shift();
           messagesMatched += 1;
 
-          let message = null;
+          // TODO Remove type once MUI X enables noImplicitAny
+          let message: string | null = null;
           if (expectedMessage === undefined) {
             message = `Expected no more error messages but got:\n"${actualMessage}"`;
           } else if (!actualMessage.includes(expectedMessage)) {

@@ -21,14 +21,14 @@ export default function Home() {
     <BrandingProvider>
       <Head
         title="MUI: The React component library you always wanted"
-        description="MUI provides a simple, customizable, and accessible library of React components. Follow your own design system, or start with Material Design. You will develop React applications faster."
+        description="MUI provides a simple, customizable, and accessible library of React components. Follow your own design system, or start with Material Design."
       />
       <NoSsr>
         <NewsletterToast />
       </NoSsr>
       <AppHeaderBanner />
       <AppHeader />
-      <main>
+      <main id="main-content">
         <Hero />
         <References companies={CORE_CUSTOMERS} />
         <ProductSuite />
@@ -52,8 +52,8 @@ export default function Home() {
   "url": "https://mui.com/",
   "logo": "https://mui.com/static/logo.png",
   "sameAs": [
-    "https://twitter.com/materialUI",
-    "https://github.com/mui-org/material-ui",
+    "https://twitter.com/MUI_hq",
+    "https://github.com/mui/",
     "https://opencollective.com/mui"
   ]
 }

@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import FEATURE_TOGGLE from 'docs/src/featureToggle';
 
 function mapTranslations(req) {
   const translations = {};
@@ -67,26 +66,6 @@ export function useTranslate() {
   return React.useMemo(
     () =>
       function translate(key, options = {}) {
-        function prefixMaterial(translation) {
-          if (typeof translation === 'string' && FEATURE_TOGGLE.enable_product_scope) {
-            let prefixed = translation;
-            [
-              '/getting-started',
-              '/components',
-              '/api-docs',
-              '/customization',
-              '/guides',
-              '/discover-more',
-            ].forEach((pathname) => {
-              prefixed = prefixed.replace(
-                new RegExp(`href="${pathname}`, 'g'),
-                `href="/material${pathname}`,
-              );
-            });
-            return prefixed;
-          }
-          return translation;
-        }
         const { ignoreWarning = false } = options;
         const wordings = translations[userLanguage];
 
@@ -104,10 +83,10 @@ export function useTranslate() {
             console.error(`Missing translation for ${fullKey}`);
             warnedOnce[fullKey] = true;
           }
-          return prefixMaterial(getPath(translations.en, key));
+          return getPath(translations.en, key);
         }
 
-        return prefixMaterial(translation);
+        return translation;
       },
     [userLanguage],
   );

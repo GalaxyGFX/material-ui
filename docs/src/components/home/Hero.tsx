@@ -50,10 +50,11 @@ const FolderTable = dynamic(() => import('../showcase/FolderTable'), {
   loading: createLoading({ width: 360, height: 212 }),
 });
 
-const ThemeDatePicker = dynamic(() => import('../showcase/ThemeDatePicker'), {
-  ssr: false,
-  loading: createLoading({ width: { md: 360, xl: 400 }, height: 260 }),
-});
+// TODO Revert #34541 when https://github.com/mui/mui-x/pull/6362 is released
+// const ThemeDatePicker = dynamic(() => import('../showcase/ThemeDatePicker'), {
+//   ssr: false,
+//   loading: createLoading({ width: { md: 360, xl: 400 }, height: 260 }),
+// });
 const ThemeTabs = dynamic(() => import('../showcase/ThemeTabs'), {
   ssr: false,
   loading: createLoading({ width: { md: 360, xl: 400 }, height: 48 }),
@@ -110,20 +111,21 @@ export default function Hero() {
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
           <Typography variant="h1" sx={{ my: 2, maxWidth: 500 }}>
-            The React <GradientText>UI&nbsp;library</GradientText> you always wanted
+            <GradientText>Move faster</GradientText> with intuitive React UI tools
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
-            MUI provides a robust, customizable, and accessible library of foundational and advanced
-            components, enabling you to build your own design system and develop React applications
-            faster.
+            MUI offers a comprehensive suite of UI tools to help you ship new features faster. Start
+            with Material UI, our fully-loaded component library, or bring your own design system to
+            our production-ready components.
           </Typography>
           <GetStartedButtons sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} />
         </Box>
       }
       rightSx={{
         p: 3,
+        ml: 2,
         minWidth: 2000,
-        overflowY: 'auto',
+        overflow: 'hidden', // the components on the Hero section are mostly illustrative, even though they're interactive. That's why scrolling is disabled.
         '& > div': {
           width: 360,
           display: 'inline-flex',
@@ -152,12 +154,15 @@ export default function Hero() {
                 <ThemeChip />
               </Box>
               <ThemeTimeline />
-              <FolderTable />
+              {/* Temporary moved FolderTable to the next column due to ThemeDatePicker automatic focus */}
+              {/* <FolderTable /> */}
             </Stack>
           )}
           {isMdUp && (
             <Stack spacing={4} sx={{ ml: 4, '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <ThemeDatePicker />
+              {/* Temporary removed ThemeDatePicker due to layout crash from auto focus */}
+              {/* <ThemeDatePicker /> */}
+              <FolderTable />
               <ThemeTabs />
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ flexGrow: 1 }}>

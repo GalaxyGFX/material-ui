@@ -1,31 +1,23 @@
 import * as React from 'react';
-import Container from '@mui/material/Container';
+import Container from '@mui/joy/Container';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
+import Typography from '@mui/joy/Typography';
 import {
   CssVarsProvider,
   useColorScheme,
   useTheme,
-  styled,
-  ColorPaletteProp,
   TypographySystem,
+  createGetCssVar,
 } from '@mui/joy/styles';
+
+const getCssVar = createGetCssVar();
 
 const rgb2hex = (rgb: string) =>
   `#${(rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/) || [])
     .slice(1)
     .map((n) => parseInt(n, 10).toString(16).padStart(2, '0'))
     .join('')}`;
-
-const Typography = styled('p', {
-  shouldForwardProp: (prop) => prop !== 'color' && prop !== 'level' && prop !== 'sx',
-})<{ color?: ColorPaletteProp; level?: keyof TypographySystem }>(
-  ({ theme, level = 'body1', color }) => [
-    { margin: 0 },
-    theme.typography[level],
-    color && { color: `var(--joy-palette-${color}-textColor)` },
-  ],
-);
 
 const ColorSchemePicker = () => {
   const { mode, setMode } = useColorScheme();
@@ -44,7 +36,7 @@ const ColorSchemePicker = () => {
         display: 'inline-flex',
         alignItems: 'center',
         border: '1px solid',
-        borderRadius: '24px',
+        borderRadius: theme.vars.radius.md,
         ...theme.variants.outlined.neutral,
       })}
     >
@@ -53,8 +45,8 @@ const ColorSchemePicker = () => {
           return (
             <Button
               key={modeId}
-              size="small"
-              variant={mode === modeId ? 'contained' : 'text'}
+              size="sm"
+              variant={mode === modeId ? 'solid' : 'plain'}
               onClick={() => {
                 setMode(modeId);
               }}
@@ -82,12 +74,12 @@ const ColorToken = ({ name, value }: { name: string; value: string }) => {
       <Box
         ref={ref}
         sx={{
-          borderRadius: 'calc(var(--joy-borderRadius-default) / 2)',
+          borderRadius: 'sm',
           bgcolor: value,
           width: 64,
           height: 64,
           mb: 1,
-          boxShadow: 'var(--joy-elevation-sm)',
+          boxShadow: 'sm',
         }}
       />
       <Typography level="body3">{name}</Typography>
@@ -99,15 +91,20 @@ const ColorToken = ({ name, value }: { name: string; value: string }) => {
 const PaletteTokens = () => {
   const { colorScheme } = useColorScheme();
   const { palette } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <React.Fragment>
-      <Typography level="h5" sx={{ mb: 1 }}>
-        Palette ({colorScheme})
-      </Typography>
-
+      {mounted && (
+        <Typography level="h5" sx={{ mb: 1 }}>
+          Palette ({colorScheme})
+        </Typography>
+      )}
       <Box>
         {Object.entries(palette).map(([key, nestedObj]) => {
-          if (typeof nestedObj === 'string') {
+          if (typeof nestedObj === 'string' && mounted) {
             return <ColorToken key={key} name={key} value={nestedObj} />;
           }
           return (
@@ -115,24 +112,26 @@ const PaletteTokens = () => {
               <summary
                 style={{
                   marginBottom: '0.5rem',
-                  fontFamily: 'var(--joy-fontFamily-default)',
+                  fontFamily: getCssVar('fontFamily-body'),
                   cursor: 'pointer',
                 }}
               >
                 {key}
               </summary>
 
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: 2,
-                }}
-              >
-                {Object.entries(nestedObj).map(([nestedKey, value]) => (
-                  <ColorToken key={nestedKey} name={nestedKey} value={value as string} />
-                ))}
-              </Box>
+              {key !== 'mode' && key !== 'colorScheme' && (
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                    gap: 2,
+                  }}
+                >
+                  {Object.entries(nestedObj).map(([nestedKey, value]) => (
+                    <ColorToken key={nestedKey} name={nestedKey} value={value as string} />
+                  ))}
+                </Box>
+              )}
             </details>
           );
         })}
@@ -174,7 +173,7 @@ export default function JoyStyleGuide() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: 'background.default',
+            bgcolor: 'background.body',
           }}
         >
           <ColorSchemePicker />

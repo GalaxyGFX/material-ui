@@ -96,4 +96,36 @@ describe('<SvgIcon />', () => {
       expect(container.firstChild).to.have.class(classes.fontSizeInherit);
     });
   });
+
+  describe('prop: inheritViewBox', () => {
+    const CustomSvg = (props) => (
+      <svg viewBox="-4 -4 24 24" {...props}>
+        {path}
+      </svg>
+    );
+
+    it('should render with the default viewBox if neither inheritViewBox nor viewBox are provided', () => {
+      const { container } = render(<SvgIcon component={CustomSvg} />);
+      expect(container.firstChild).to.have.attribute('viewBox', '0 0 24 24');
+    });
+
+    it('should render with given viewBox if inheritViewBox is not provided', () => {
+      const { container } = render(<SvgIcon component={CustomSvg} viewBox="0 0 30 30" />);
+      expect(container.firstChild).to.have.attribute('viewBox', '0 0 30 30');
+    });
+
+    it("should use the custom component's viewBox if true", () => {
+      const { container } = render(<SvgIcon component={CustomSvg} inheritViewBox />);
+      expect(container.firstChild).to.have.attribute('viewBox', '-4 -4 24 24');
+    });
+  });
+
+  it('should not override internal ownerState with the ownerState passed to the icon', function test() {
+    if (/jsdom/.test(window.navigator.userAgent)) {
+      this.skip();
+    }
+
+    const { container } = render(<SvgIcon ownerState={{ fontSize: 'large' }}>{path}</SvgIcon>);
+    expect(container.firstChild).toHaveComputedStyle({ fontSize: '24px' }); // fontSize: medium -> 1.5rem = 24px
+  });
 });
